@@ -28,10 +28,9 @@ class Utils
 
     /**
      * Converts a HSL color into a RGB color
-     * @param array $hslValues
      * @return array
      */
-    public static function hslToRgb($hslValues)
+    public static function hslToRgb(array $hslValues)
     {
         $h = floatval($hslValues[0]);
         $s = floatval(str_replace('%', '', $hslValues[1]));
@@ -94,13 +93,13 @@ class Utils
             switch ($letter) {
                 case 'M':
                 case 'm':
-                    return (int) $size * 1048576;
+                    return $size * 1048576;
                 case 'K':
                 case 'k':
-                    return (int) $size * 1024;
+                    return $size * 1024;
                 case 'G':
                 case 'g':
-                    return (int) $size * 1073741824;
+                    return $size * 1073741824;
             }
         }
         return (int) $size;
@@ -122,10 +121,9 @@ class Utils
 
     /**
      * Converts a RGB color into a HEX color
-     * @param array $rgbColors
      * @return array
      */
-    public static function rgbToHex($rgbColors)
+    public static function rgbToHex(array $rgbColors)
     {
         $hexColors = array();
 

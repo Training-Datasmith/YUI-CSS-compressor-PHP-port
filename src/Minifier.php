@@ -399,37 +399,32 @@ class Minifier
             $substrOffset = $searchOffset;
         }
 
-        $ret .= substr($css, $substrOffset);
-
-        return $ret;
+        return $ret . substr($css, $substrOffset);
     }
 
     /**
      * Registers all comments found as candidates to be preserved.
-     * @param array $matches
      * @return string
      */
-    private function processCommentsCallback($matches)
+    private function processCommentsCallback(array $matches)
     {
         return '/*'. $this->registerCommentToken($matches[1]) .'*/';
     }
 
     /**
      * Preserves old IE Matrix string definition
-     * @param array $matches
      * @return string
      */
-    private function processOldIeSpecificMatrixDefinitionCallback($matches)
+    private function processOldIeSpecificMatrixDefinitionCallback(array $matches)
     {
         return 'filter:progid:DXImageTransform.Microsoft.Matrix('. $this->registerPreservedToken($matches[1]) .')';
     }
 
     /**
      * Preserves strings found
-     * @param array $matches
      * @return string
      */
-    private function processStringsCallback($matches)
+    private function processStringsCallback(array $matches)
     {
         $match = $matches[0];
         $quote = substr($match, 0, 1);
@@ -450,10 +445,9 @@ class Minifier
     /**
      * Searches & replaces all import at-rule unquoted urls with tokens so URI reserved characters such as a semicolon
      * may be used safely in a URL.
-     * @param array $matches
      * @return string
      */
-    private function processImportUnquotedUrlAtRulesCallback($matches)
+    private function processImportUnquotedUrlAtRulesCallback(array $matches)
     {
         return '@import url('. $this->registerPreservedToken($matches[1]) .')'. $matches[2];
     }
@@ -531,9 +525,7 @@ class Minifier
             $substrOffset = $searchOffset;
         }
 
-        $ret .= substr($css, $substrOffset);
-
-        return $ret;
+        return $ret . substr($css, $substrOffset);
     }
 
     /**
@@ -613,7 +605,7 @@ class Minifier
         $body = preg_replace('/([ :,(])\+(\.?\d+)/S', '$1$2', $body);
 
         // shorten ms to s
-        $body = preg_replace_callback('/([ :,(])(-?)(\d{3,})ms/Si', function ($matches) {
+        $body = preg_replace_callback('/([ :,(])(-?)(\d{3,})ms/Si', function (array $matches) {
             return $matches[1] . $matches[2] . ((int) $matches[3] / 1000) .'s';
         }, $body);
 
@@ -716,7 +708,7 @@ class Minifier
         $css = preg_replace('/::(before|after|first-(?:line|letter))(\{|,)/Si', ':$1$2', $css);
 
         // Retain space for special IE6 cases
-        $css = preg_replace_callback('/:first-(line|letter)(\{|,)/Si', function ($matches) {
+        $css = preg_replace_callback('/:first-(line|letter)(\{|,)/Si', function (array $matches) {
             return ':first-'. strtolower($matches[1]) .' '. $matches[2];
         }, $css);
 
@@ -770,7 +762,7 @@ class Minifier
         }
 
         // @import handling
-        $css = preg_replace_callback($this->importRegex, function ($matches) use (&$imports) {
+        $css = preg_replace_callback($this->importRegex, function (array $matches) use (&$imports) {
             // Keep all @import at-rules found for later
             $imports .= $matches[0];
             // Delete all @import at-rules
@@ -778,7 +770,7 @@ class Minifier
         }, $css);
 
         // @namespace handling
-        $css = preg_replace_callback($this->namespaceRegex, function ($matches) use (&$namespaces) {
+        $css = preg_replace_callback($this->namespaceRegex, function (array $matches) use (&$namespaces) {
             // Keep all @namespace at-rules found for later
             $namespaces .= $matches[0];
             // Delete all @namespace at-rules
@@ -875,20 +867,18 @@ class Minifier
     /**
      * Shortens all named colors with a shorter HEX counterpart for a set of safe properties
      * e.g. white -> #fff
-     * @param array $matches
      * @return string
      */
-    private function shortenNamedColorsCallback($matches)
+    private function shortenNamedColorsCallback(array $matches)
     {
         return $matches[1] . $this->namedToHexColorsMap[strtolower($matches[2])] . $matches[3];
     }
 
     /**
      * Makes a string lowercase
-     * @param array $matches
      * @return string
      */
-    private function strtolowerCallback($matches)
+    private function strtolowerCallback(array $matches)
     {
         return strtolower($matches[0]);
     }

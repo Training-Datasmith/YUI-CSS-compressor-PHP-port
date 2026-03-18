@@ -130,7 +130,7 @@ class Command
         die(self::SUCCESS_EXIT);
     }
 
-    protected function getOpt($opts, $options)
+    protected function getOpt($opts, array $options)
     {
         $value = null;
 
