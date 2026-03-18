@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace tubalmartin\CssMin;
 
 class Command
 {
-    const SUCCESS_EXIT = 0;
-    const FAILURE_EXIT = 1;
-    
-    protected $stats = array();
-    
+    public const SUCCESS_EXIT = 0;
+    public const FAILURE_EXIT = 1;
+
+    protected $stats = [];
+
     public static function main()
     {
-        $command = new self;
+        $command = new self();
         $command->run();
     }
 
@@ -19,7 +21,7 @@ class Command
     {
         $opts = getopt(
             'hi:o:',
-            array(
+            [
                 'help',
                 'input:',
                 'output:',
@@ -30,15 +32,15 @@ class Command
                 'memory-limit:',
                 'pcre-backtrack-limit:',
                 'pcre-recursion-limit:',
-                'remove-important-comments'
-            )
+                'remove-important-comments',
+            ]
         );
 
-        $help = $this->getOpt(array('h', 'help'), $opts);
-        $input = $this->getOpt(array('i', 'input'), $opts);
-        $output = $this->getOpt(array('o', 'output'), $opts);
+        $help = $this->getOpt(['h', 'help'], $opts);
+        $input = $this->getOpt(['i', 'input'], $opts);
+        $output = $this->getOpt(['o', 'output'], $opts);
         $dryrun = $this->getOpt('dry-run', $opts);
-        $keepSourceMapComment = $this->getOpt(array('keep-sourcemap', 'keep-sourcemap-comment'), $opts);
+        $keepSourceMapComment = $this->getOpt(['keep-sourcemap', 'keep-sourcemap-comment'], $opts);
         $linebreakPosition = $this->getOpt('linebreak-position', $opts);
         $memoryLimit = $this->getOpt('memory-limit', $opts);
         $backtrackLimit = $this->getOpt('pcre-backtrack-limit', $opts);
@@ -67,10 +69,10 @@ class Command
             fwrite(STDERR, 'Input CSS code could not be retrieved from input file' . PHP_EOL);
             die(self::FAILURE_EXIT);
         }
-        
+
         $this->setStat('original-size', strlen($css));
-        
-        $cssmin = new Minifier;
+
+        $cssmin = new Minifier();
 
         if (!is_null($keepSourceMapComment)) {
             $cssmin->keepSourceMapComment();
@@ -83,7 +85,7 @@ class Command
         if (!is_null($linebreakPosition)) {
             $cssmin->setLineBreakPosition($linebreakPosition);
         }
-        
+
         if (!is_null($memoryLimit)) {
             $cssmin->setMemoryLimit($memoryLimit);
         }
@@ -95,15 +97,15 @@ class Command
         if (!is_null($recursionLimit)) {
             $cssmin->setPcreRecursionLimit($recursionLimit);
         }
-        
+
         $this->setStat('compression-time-start', microtime(true));
-        
+
         $css = $cssmin->run($css);
 
         $this->setStat('compression-time-end', microtime(true));
         $this->setStat('peak-memory-usage', memory_get_peak_usage(true));
         $this->setStat('compressed-size', strlen($css));
-        
+
         if (!is_null($dryrun)) {
             $this->showStats();
             die(self::SUCCESS_EXIT);
@@ -135,7 +137,7 @@ class Command
         $value = null;
 
         if (is_string($opts)) {
-            $opts = array($opts);
+            $opts = [$opts];
         }
 
         foreach ($opts as $opt) {
@@ -147,24 +149,24 @@ class Command
 
         return $value;
     }
-    
+
     protected function setStat($statName, $statValue)
     {
         $this->stats[$statName] = $statValue;
     }
-    
+
     protected function formatBytes($size, $precision = 2)
     {
         $base = log($size, 1024);
-        $suffixes = array('B', 'K', 'M', 'G', 'T');
+        $suffixes = ['B', 'K', 'M', 'G', 'T'];
         return round(pow(1024, $base - floor($base)), $precision) .' '. $suffixes[floor($base)];
     }
-    
+
     protected function formatMicroSeconds($microSecs, $precision = 2)
     {
         // ms
         $time = round($microSecs * 1000, $precision);
-        
+
         if ($time >= 60 * 1000) {
             $time = round($time / 60 * 1000, $precision) .' m'; // m
         } elseif ($time >= 1000) {
@@ -172,10 +174,10 @@ class Command
         } else {
             $time .= ' ms';
         }
-        
+
         return $time;
     }
-    
+
     protected function showStats()
     {
         $spaceSavings = round((1 - ($this->stats['compressed-size'] / $this->stats['original-size'])) * 100, 2);
@@ -184,7 +186,7 @@ class Command
             $this->stats['compression-time-end'] - $this->stats['compression-time-start']
         );
         $peakMemoryUsage = $this->formatBytes($this->stats['peak-memory-usage']);
-        
+
         print <<<EOT
         
 ------------------------------

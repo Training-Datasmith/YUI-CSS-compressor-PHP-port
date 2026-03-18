@@ -42,7 +42,6 @@ if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
     $_POST = stripslashes_deep($_POST);
 }
 
-
 if (!empty($_POST)) :
     // Form options
     parse_str($_POST['options']);
@@ -73,7 +72,7 @@ if (!empty($_POST)) :
     }
 
     // Compress the CSS code and store data
-    $output = array();
+    $output = [];
     $output['css'] = $compressor->run($_POST['css']);
     $output['originalSize'] = mb_strlen($_POST['css'], '8bit');
     $output['compressedSize'] = mb_strlen($output['css'], '8bit');
@@ -84,7 +83,7 @@ if (!empty($_POST)) :
     // Output data
     echo json_encode($output);
 else :
-?>
+    ?>
 <!DOCTYPE HTML>
 <html lang="en-US">
 <head>

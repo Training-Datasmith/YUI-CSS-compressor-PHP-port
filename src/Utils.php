@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace tubalmartin\CssMin;
 
 class Utils
@@ -46,12 +48,12 @@ class Utils
         } else {
             $v2 = $l < 0.5 ? $l * (1 + $s) : ($l + $s) - ($s * $l);
             $v1 = (2 * $l) - $v2;
-            $r = self::roundNumber(255 * self::hueToRgb($v1, $v2, $h + (1/3)));
+            $r = self::roundNumber(255 * self::hueToRgb($v1, $v2, $h + (1 / 3)));
             $g = self::roundNumber(255 * self::hueToRgb($v1, $v2, $h));
-            $b = self::roundNumber(255 * self::hueToRgb($v1, $v2, $h - (1/3)));
+            $b = self::roundNumber(255 * self::hueToRgb($v1, $v2, $h - (1 / 3)));
         }
 
-        return array($r, $g, $b);
+        return [$r, $g, $b];
     }
 
     /**
@@ -125,11 +127,11 @@ class Utils
      */
     public static function rgbToHex(array $rgbColors)
     {
-        $hexColors = array();
+        $hexColors = [];
 
         // Values outside the sRGB color space should be clipped (0-255)
         for ($i = 0, $l = count($rgbColors); $i < $l; $i++) {
-            $hexColors[$i] = sprintf("%02x", self::clampNumberSrgb(self::rgbPercentageToRgbInteger($rgbColors[$i])));
+            $hexColors[$i] = sprintf('%02x', self::clampNumberSrgb(self::rgbPercentageToRgbInteger($rgbColors[$i])));
         }
 
         return $hexColors;

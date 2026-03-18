@@ -1,9 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace tubalmartin\CssMin\Tests;
 
-use tubalmartin\CssMin\Minifier;
 use PHPUnit_Framework_TestCase;
+use tubalmartin\CssMin\Minifier;
 
 class MinifierTest extends PHPUnit_Framework_TestCase
 {
@@ -11,7 +13,7 @@ class MinifierTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->cssmin = new Minifier;
+        $this->cssmin = new Minifier();
     }
 
     protected function getExpectation($name)
