@@ -6,48 +6,28 @@ use tubalmartin\CssMin\Minifier as CSSmin;
 
 mb_internal_encoding('UTF-8');
 
-/**
- * Navigates through an array and removes slashes from the values.
- *
- * If an array is passed, the array_map() function causes a callback to pass the
- * value back to the function. The slashes from this value will removed.
- *
- * @param array|string $value The array or string to be stripped.
- * @return array|string Stripped array (or string in the callback).
- */
-function stripslashes_deep($value)
-{
-    if (is_array($value)) {
-        $value = array_map('stripslashes_deep', $value);
-    } elseif (is_object($value)) {
-        $vars = get_object_vars($value);
-        foreach ($vars as $key => $data) {
-            $value->{$key} = stripslashes_deep($data);
-        }
-    } else {
-        $value = stripslashes($value);
-    }
-
-    return $value;
-}
-
-// Disable magic quotes at runtime.
-if (function_exists('ini_set')) {
-    ini_set('magic_quotes_sybase', 0);
-    ini_set('get_magic_quotes_runtime', 0);
-}
-
-// If get_magic_quotes_gpc is active, strip slashes
-if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
-    $_POST = stripslashes_deep($_POST);
-}
-
 if (!empty($_POST)) :
     // Form options
-    parse_str($_POST['options']);
+    parse_str($_POST['options'] ?? '', $parsedOptions);
 
-    $linebreak_pos = trim($linebreak_pos) !== '' ? $linebreak_pos : false;
-    $raise_php = isset($raise_php) ? true : false;
+    $linebreak_pos = isset($parsedOptions['linebreak_pos']) && trim($parsedOptions['linebreak_pos']) !== ''
+        ? $parsedOptions['linebreak_pos'] : false;
+    $raise_php = isset($parsedOptions['raise_php']) ? true : false;
+
+    // Allowed values for PHP resource limits
+    $allowed_memory_limits = ['32M', '64M', '128M', '256M', '512M', '1G'];
+    $allowed_execution_times = [30, 60, 120, 300];
+    $allowed_pcre_backtrack = [100, 1000, 2000, 5000];
+    $allowed_pcre_recursion = [100, 250, 500, 1000];
+
+    $memory_limit = in_array($parsedOptions['memory_limit'] ?? '', $allowed_memory_limits, true)
+        ? $parsedOptions['memory_limit'] : '128M';
+    $max_execution_time = in_array((int) ($parsedOptions['max_execution_time'] ?? 0), $allowed_execution_times, true)
+        ? (int) $parsedOptions['max_execution_time'] : 60;
+    $pcre_backtrack_limit = in_array((int) ($parsedOptions['pcre_backtrack_limit'] ?? 0), $allowed_pcre_backtrack, true)
+        ? (int) $parsedOptions['pcre_backtrack_limit'] : 1000;
+    $pcre_recursion_limit = in_array((int) ($parsedOptions['pcre_recursion_limit'] ?? 0), $allowed_pcre_recursion, true)
+        ? (int) $parsedOptions['pcre_recursion_limit'] : 500;
 
     // Create a new CSSmin object and try to raise PHP settings
     $compressor = new CSSmin($raise_php);
@@ -56,11 +36,11 @@ if (!empty($_POST)) :
         $compressor->setLineBreakPosition($linebreak_pos);
     }
 
-    if (isset($keep_sourcemap)) {
+    if (isset($parsedOptions['keep_sourcemap'])) {
         $compressor->keepSourceMapComment();
     }
 
-    if (isset($remove_important_comments)) {
+    if (isset($parsedOptions['remove_important_comments'])) {
         $compressor->removeImportantComments();
     }
 
@@ -71,10 +51,17 @@ if (!empty($_POST)) :
         $compressor->setPcreRecursionLimit(1000 * $pcre_recursion_limit);
     }
 
+    // Enforce a size limit on CSS input (1 MB)
+    $cssInput = $_POST['css'] ?? '';
+    if (mb_strlen($cssInput, '8bit') > 1048576) {
+        echo json_encode(['error' => 'CSS input exceeds maximum allowed size']);
+        exit;
+    }
+
     // Compress the CSS code and store data
     $output = [];
-    $output['css'] = $compressor->run($_POST['css']);
-    $output['originalSize'] = mb_strlen($_POST['css'], '8bit');
+    $output['css'] = $compressor->run($cssInput);
+    $output['originalSize'] = mb_strlen($cssInput, '8bit');
     $output['compressedSize'] = mb_strlen($output['css'], '8bit');
     $output['bytesSaved'] = $output['originalSize'] - $output['compressedSize'];
     $output['compressionRatio'] = round(($output['bytesSaved'] * 100) /
