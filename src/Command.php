@@ -1,13 +1,12 @@
 <?php
 
-declare (strict_types=1);
 namespace tubalmartin\Css_Min;
 
 class Command
 {
-    public const SUCCESS_EXIT = 0;
-    public const FAILURE_EXIT = 1;
-    protected $stats = [];
+    const SUCCESS_EXIT = 0;
+    const FAILURE_EXIT = 1;
+    protected $stats = array();
     public static function main()
     {
         $command = new self();
@@ -15,12 +14,27 @@ class Command
     }
     public function run()
     {
-        $opts = getopt('hi:o:', ['help', 'input:', 'output:', 'dry-run', 'keep-sourcemap', 'keep-sourcemap-comment', 'linebreak-position:', 'memory-limit:', 'pcre-backtrack-limit:', 'pcre-recursion-limit:', 'remove-important-comments']);
-        $help = $this->get_opt(['h', 'help'], $opts);
-        $input = $this->get_opt(['i', 'input'], $opts);
-        $output = $this->get_opt(['o', 'output'], $opts);
+        $opts = getopt(
+            'hi:o:',
+            array(
+                'help',
+                'input:',
+                'output:',
+                'dry-run',
+                'keep-sourcemap',
+                'keep-sourcemap-comment',
+                'linebreak-position:',
+                'memory-limit:',
+                'pcre-backtrack-limit:',
+                'pcre-recursion-limit:',
+                'remove-important-comments',
+            )
+        );
+        $help = $this->get_opt(array('h', 'help'), $opts);
+        $input = $this->get_opt(array('i', 'input'), $opts);
+        $output = $this->get_opt(array('o', 'output'), $opts);
         $dryrun = $this->get_opt('dry-run', $opts);
-        $keep_source_map_comment = $this->get_opt(['keep-sourcemap', 'keep-sourcemap-comment'], $opts);
+        $keep_source_map_comment = $this->get_opt(array('keep-sourcemap', 'keep-sourcemap-comment'), $opts);
         $linebreak_position = $this->get_opt('linebreak-position', $opts);
         $memory_limit = $this->get_opt('memory-limit', $opts);
         $backtrack_limit = $this->get_opt('pcre-backtrack-limit', $opts);
@@ -89,11 +103,11 @@ class Command
         $this->show_stats();
         die(self::SUCCESS_EXIT);
     }
-    protected function get_opt($opts, array $options)
+    protected function get_opt($opts, $options)
     {
         $value = null;
         if (is_string($opts)) {
-            $opts = [$opts];
+            $opts = array($opts);
         }
         foreach ($opts as $opt) {
             if (array_key_exists($opt, $options)) {
@@ -110,7 +124,7 @@ class Command
     protected function format_bytes($size, $precision = 2)
     {
         $base = log($size, 1024);
-        $suffixes = ['B', 'K', 'M', 'G', 'T'];
+        $suffixes = array('B', 'K', 'M', 'G', 'T');
         return round(pow(1024, $base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
     }
     protected function format_micro_seconds($micro_secs, $precision = 2)
@@ -135,37 +149,37 @@ class Command
         $compression_time = $this->format_micro_seconds($this->stats['compression-time-end'] - $this->stats['compression-time-start']);
         $peak_memory_usage = $this->format_bytes($this->stats['peak-memory-usage']);
         print <<<EOT
-                
+
         ------------------------------
-        CSSMIN STATS        
-        ------------------------------ 
-        Space savings:       {$space_savings} %       
+        CSSMIN STATS
+        ------------------------------
+        Space savings:       {$space_savings} %
         Compression ratio:   {$compression_ratio}:1
         Compression time:    {$compression_time}
         Peak memory usage:   {$peak_memory_usage}
-        
-        
-        EOT;
+
+
+EOT;
     }
     protected function show_help()
     {
         print <<<'EOT'
-        Usage: cssmin [options] -i <file> [-o <file>]
-          
-          -i|--input <file>              File containing uncompressed CSS code.
-          -o|--output <file>             File to use to save compressed CSS code.
-            
-        Options:
-            
-          -h|--help                      Prints this usage information.
-          --dry-run                      Performs a dry run displaying statistics.
-          --keep-sourcemap[-comment]     Keeps the sourcemap special comment in the output.
-          --linebreak-position <pos>     Splits long lines after a specific column in the output.
-          --memory-limit <limit>         Sets the memory limit for this script.
-          --pcre-backtrack-limit <limit> Sets the PCRE backtrack limit for this script.
-          --pcre-recursion-limit <limit> Sets the PCRE recursion limit for this script.
-          --remove-important-comments    Removes !important comments from output.
-        
-        EOT;
+Usage: cssmin [options] -i <file> [-o <file>]
+
+  -i|--input <file>              File containing uncompressed CSS code.
+  -o|--output <file>             File to use to save compressed CSS code.
+
+Options:
+
+  -h|--help                      Prints this usage information.
+  --dry-run                      Performs a dry run displaying statistics.
+  --keep-sourcemap[-comment]     Keeps the sourcemap special comment in the output.
+  --linebreak-position <pos>     Splits long lines after a specific column in the output.
+  --memory-limit <limit>         Sets the memory limit for this script.
+  --pcre-backtrack-limit <limit> Sets the PCRE backtrack limit for this script.
+  --pcre-recursion-limit <limit> Sets the PCRE recursion limit for this script.
+  --remove-important-comments    Removes !important comments from output.
+
+EOT;
     }
 }

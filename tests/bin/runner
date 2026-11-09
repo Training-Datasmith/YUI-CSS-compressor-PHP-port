@@ -3,13 +3,18 @@
 
 require __DIR__ . '/../../vendor/autoload.php';
 
-use tubalmartin\CssMin\Minifier;
-use tubalmartin\CssMin\Tests\FineDiff\Render\Cli as CliRenderer;
+use tubalmartin\Css_Min\Minifier;
+use tubalmartin\Css_Min\Tests\Fine_Diff\Render\Cli as CliRenderer;
 use cogpowered\FineDiff\Diff;
 
 $opts = getopt(
     't:f:',
-    array('keep-sourcemap', 'keep-sourcemap-comment', 'remove-important-comments', 'linebreak-position:')
+    array(
+        'keep-sourcemap',
+        'keep-sourcemap-comment',
+        'remove-important-comments',
+        'linebreak-position:',
+    )
 );
 
 if (empty($opts['t'])) {
@@ -27,10 +32,10 @@ if (!empty($opts['f'])) {
     $fixture = $opts['f'];
 }
 
-$fixtureFile = __DIR__ .'/../fixtures/'. $fixture .'.css';
-$expectationFile = __DIR__ .'/../expectations/'. $expectation .'.css';
+$fixture_file = __DIR__ . '/../fixtures/' . $fixture . '.css';
+$expectation_file = __DIR__ . '/../expectations/' . $expectation . '.css';
 
-if (!is_readable($fixtureFile) || !is_readable($expectationFile)) {
+if (!is_readable($fixture_file) || !is_readable($expectation_file)) {
     fwrite(
         STDERR,
         'Either test fixture or expectation is missing or not readable' . PHP_EOL
@@ -38,40 +43,40 @@ if (!is_readable($fixtureFile) || !is_readable($expectationFile)) {
     die(1);
 }
 
-$minifier = new Minifier;
+$minifier = new Minifier();
 
 if (isset($opts['keep-sourcemap']) || isset($opts['keep-sourcemap-comment'])) {
-    $minifier->keepSourceMapComment();
+    $minifier->keep_source_map_comment();
 }
 
 if (isset($opts['remove-important-comments'])) {
-    $minifier->removeImportantComments();
+    $minifier->remove_important_comments();
 }
 
 if (!empty($opts['linebreak-position'])) {
-    $minifier->setLineBreakPosition($opts['linebreak-position']);
+    $minifier->set_line_break_position($opts['linebreak-position']);
 }
 
-$fixture = file_get_contents($fixtureFile);
-$expectation = file_get_contents($expectationFile);
-$output = $minifier->run($fixture);
+$fixture_contents = file_get_contents($fixture_file);
+$expectation_contents = file_get_contents($expectation_file);
+$output = $minifier->run($fixture_contents);
 
-if (strcmp($output, $expectation) === 0) {
+if (strcmp($output, $expectation_contents) === 0) {
     fwrite(
         STDOUT,
         "\x1b[30m\x1b[42m OK \x1b[0m" . PHP_EOL
     );
     die(0);
-} else {
-    $diff = new Diff;
-    $cliRenderer = new CliRenderer;
-    $diffString = $cliRenderer->process($expectation, $diff->getOpcodes($expectation, $output));
-    fwrite(
-        STDERR,
-        "\x1b[37m\x1b[41m FAILURE \x1b[0m" . PHP_EOL .
-        '---' . PHP_EOL .
-        $diffString . PHP_EOL .
-        '---' . PHP_EOL
-    );
-    die(1);
 }
+
+$diff = new Diff();
+$cli_renderer = new CliRenderer();
+$diff_string = $cli_renderer->process($expectation_contents, $diff->getOpcodes($expectation_contents, $output));
+fwrite(
+    STDERR,
+    "\x1b[37m\x1b[41m FAILURE \x1b[0m" . PHP_EOL .
+    '---' . PHP_EOL .
+    $diff_string . PHP_EOL .
+    '---' . PHP_EOL
+);
+die(1);

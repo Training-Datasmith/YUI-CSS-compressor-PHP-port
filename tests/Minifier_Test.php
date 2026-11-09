@@ -1,314 +1,312 @@
 <?php
 
-declare(strict_types=1);
+namespace tubalmartin\Css_Min\Tests;
 
-namespace tubalmartin\CssMin\Tests;
+use tubalmartin\Css_Min\Minifier;
+use PHPUnit\Framework\TestCase;
 
-use PHPUnit_Framework_TestCase;
-use tubalmartin\CssMin\Minifier;
-
-class MinifierTest extends PHPUnit_Framework_TestCase
+class Minifier_Test extends TestCase
 {
     protected $cssmin;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->cssmin = new Minifier();
+        $this->cssmin = new Minifier;
     }
 
-    protected function getExpectation($name)
+    protected function get_expectation($name)
     {
         return file_get_contents(__DIR__ .'/expectations/'. $name .'.css');
     }
 
-    protected function getFixture($name)
+    protected function get_fixture($name)
     {
         return file_get_contents(__DIR__ .'/fixtures/'. $name .'.css');
     }
 
-    protected function execTest($expectationName, $fixtureName = null)
+    protected function exec_test($expectation_name, $fixture_name = null)
     {
         $this->assertEquals(
-            $this->getExpectation($expectationName),
-            $this->cssmin->run($this->getFixture(is_null($fixtureName) ? $expectationName : $fixtureName))
+            $this->get_expectation($expectation_name),
+            $this->cssmin->run($this->get_fixture(is_null($fixture_name) ? $expectation_name : $fixture_name))
         );
     }
 
-    public function testAtRules()
+    public function test_at_rules()
     {
-        $this->execTest('at-rules');
+        $this->exec_test('at-rules');
     }
 
-    public function testAttributeSelectors()
+    public function test_attribute_selectors()
     {
-        $this->execTest('attribute-selectors');
+        $this->exec_test('attribute-selectors');
     }
 
-    public function testBackgroundProperty()
+    public function test_background_property()
     {
-        $this->execTest('background');
+        $this->exec_test('background');
     }
 
-    public function testBackgroundPositionProperty()
+    public function test_background_position_property()
     {
-        $this->execTest('background-position');
+        $this->exec_test('background-position');
     }
 
-    public function testBorderProperty()
+    public function test_border_property()
     {
-        $this->execTest('border');
+        $this->exec_test('border');
     }
 
-    public function testCalcFunction()
+    public function test_calc_function()
     {
-        $this->execTest('calc');
+        $this->exec_test('calc');
     }
 
-    public function testColors()
+    public function test_colors()
     {
-        $this->execTest('colors');
+        $this->exec_test('colors');
     }
 
-    public function testComments()
+    public function test_comments()
     {
-        $this->execTest('comments');
+        $this->exec_test('comments');
     }
 
-    public function testDataUrlBase64DoubleQuotes()
+    public function test_data_url_base64_double_quotes()
     {
-        $this->execTest('dataurl-base64-doublequotes');
+        $this->exec_test('dataurl-base64-doublequotes');
     }
 
-    public function testDataUrlBase64Eof()
+    public function test_data_url_base64_eof()
     {
-        $this->execTest('dataurl-base64-eof');
+        $this->exec_test('dataurl-base64-eof');
     }
 
-    public function testDataUrlBase64LineBreakInData()
+    public function test_data_url_base64_line_break_in_data()
     {
-        $this->execTest('dataurl-base64-linebreakindata');
+        $this->exec_test('dataurl-base64-linebreakindata');
     }
 
-    public function testDataUrlBase64NoQuotes()
+    public function test_data_url_base64_no_quotes()
     {
-        $this->execTest('dataurl-base64-noquotes');
+        $this->exec_test('dataurl-base64-noquotes');
     }
 
-    public function testDataUrlBase64SingleQuotes()
+    public function test_data_url_base64_single_quotes()
     {
-        $this->execTest('dataurl-base64-singlequotes');
+        $this->exec_test('dataurl-base64-singlequotes');
     }
 
-    public function testDataUrlBase64TwoUrls()
+    public function test_data_url_base64_two_urls()
     {
-        $this->execTest('dataurl-base64-twourls');
+        $this->exec_test('dataurl-base64-twourls');
     }
 
-    public function testDataUrlDbQuoteFont()
+    public function test_data_url_db_quote_font()
     {
-        $this->execTest('dataurl-dbquote-font');
+        $this->exec_test('dataurl-dbquote-font');
     }
 
-    public function testDataUrlInlineSvg()
+    public function test_data_url_inline_svg()
     {
-        $this->execTest('dataurl-inline-svg');
+        $this->exec_test('dataurl-inline-svg');
     }
 
-    public function testDataUrlNonBase64DoubleQuotes()
+    public function test_data_url_non_base64_double_quotes()
     {
-        $this->execTest('dataurl-nonbase64-doublequotes');
+        $this->exec_test('dataurl-nonbase64-doublequotes');
     }
 
-    public function testDataUrlNonBase64NoQuotes()
+    public function test_data_url_non_base64_no_quotes()
     {
-        $this->execTest('dataurl-nonbase64-noquotes');
+        $this->exec_test('dataurl-nonbase64-noquotes');
     }
 
-    public function testDataUrlNonBase64SingleQuotes()
+    public function test_data_url_non_base64_single_quotes()
     {
-        $this->execTest('dataurl-nonbase64-singlequotes');
+        $this->exec_test('dataurl-nonbase64-singlequotes');
     }
 
-    public function testDataUrlNoQuoteMultilineFont()
+    public function test_data_url_no_quote_multiline_font()
     {
-        $this->execTest('dataurl-noquote-multiline-font');
+        $this->exec_test('dataurl-noquote-multiline-font');
     }
 
-    public function testDataUrlRealDataDoubleQuotes()
+    public function test_data_url_real_data_double_quotes()
     {
-        $this->execTest('dataurl-realdata-doublequotes');
+        $this->exec_test('dataurl-realdata-doublequotes');
     }
 
-    public function testDataUrlRealDataNoQuotes()
+    public function test_data_url_real_data_no_quotes()
     {
-        $this->execTest('dataurl-realdata-noquotes');
+        $this->exec_test('dataurl-realdata-noquotes');
     }
 
-    public function testDataUrlRealDataSingleQuotes()
+    public function test_data_url_real_data_single_quotes()
     {
-        $this->execTest('dataurl-realdata-singlequotes');
+        $this->exec_test('dataurl-realdata-singlequotes');
     }
 
-    public function testDataUrlRealDataYuiApp()
+    public function test_data_url_real_data_yui_app()
     {
-        $this->execTest('dataurl-realdata-yuiapp');
+        $this->exec_test('dataurl-realdata-yuiapp');
     }
 
-    public function testDataUrlSingleQuoteFont()
+    public function test_data_url_single_quote_font()
     {
-        $this->execTest('dataurl-singlequote-font');
+        $this->exec_test('dataurl-singlequote-font');
     }
 
-    public function testEmptyRules()
+    public function test_empty_rules()
     {
-        $this->execTest('empty-rules');
+        $this->exec_test('empty-rules');
     }
 
-    public function testFlexProperty()
+    public function test_flex_property()
     {
-        $this->execTest('flex');
+        $this->exec_test('flex');
     }
 
-    public function testFontWeightProperty()
+    public function test_font_weight_property()
     {
-        $this->execTest('font-weight');
+        $this->exec_test('font-weight');
     }
 
-    public function testImportantRule()
+    public function test_important_rule()
     {
-        $this->execTest('important');
+        $this->exec_test('important');
     }
 
-    public function testKeepSourcemapComment()
+    public function test_keep_sourcemap_comment()
     {
-        $this->cssmin->keepSourceMapComment();
-        $this->execTest('sourcemap-comment-preserve', 'sourcemap-comment');
+        $this->cssmin->keep_source_map_comment();
+        $this->exec_test('sourcemap-comment-preserve', 'sourcemap-comment');
     }
 
-    public function testLinebreakPosition()
+    public function test_linebreak_position()
     {
-        $this->cssmin->setLineBreakPosition(10);
-        $this->execTest('linebreak-position');
+        $this->cssmin->set_line_break_position(10);
+        $this->exec_test('linebreak-position');
     }
 
-    public function testLinebreakPositionDoubleNewline()
+    public function test_linebreak_position_double_newline()
     {
-        $this->cssmin->setLineBreakPosition(1);
-        $this->cssmin->keepSourceMapComment();
-        $this->execTest('sourcemap-comment-preserve', 'sourcemap-comment');
+        $this->cssmin->set_line_break_position(1);
+        $this->cssmin->keep_source_map_comment();
+        $this->exec_test('sourcemap-comment-preserve', 'sourcemap-comment');
     }
 
-    public function testLowercasing()
+    public function test_lowercasing()
     {
-        $this->execTest('lowercasing');
+        $this->exec_test('lowercasing');
     }
 
-    public function testNumbers()
+    public function test_numbers()
     {
-        $this->execTest('numbers');
+        $this->exec_test('numbers');
     }
 
-    public function testOldIeFilters()
+    public function test_old_ie_filters()
     {
-        $this->execTest('old-ie-filters');
+        $this->exec_test('old-ie-filters');
     }
 
-    public function testPreserveCase()
+    public function test_preserve_case()
     {
-        $this->execTest('preserve-case');
+        $this->exec_test('preserve-case');
     }
 
-    public function testPseudoClasses()
+    public function test_pseudo_classes()
     {
-        $this->execTest('pseudo-classes');
+        $this->exec_test('pseudo-classes');
     }
 
-    public function testPseudoElements()
+    public function test_pseudo_elements()
     {
-        $this->execTest('pseudo-elements');
+        $this->exec_test('pseudo-elements');
     }
 
-    public function testRemoveImportantComments()
+    public function test_remove_important_comments()
     {
-        $this->cssmin->removeImportantComments();
-        $this->execTest('important-comments-remove', 'comments');
+        $this->cssmin->remove_important_comments();
+        $this->exec_test('important-comments-remove', 'comments');
     }
 
-    public function testRemoveSourcemapComment()
+    public function test_remove_sourcemap_comment()
     {
-        $this->execTest('sourcemap-comment-remove', 'sourcemap-comment');
+        $this->exec_test('sourcemap-comment-remove', 'sourcemap-comment');
     }
 
-    public function testSemicolons()
+    public function test_semicolons()
     {
-        $this->execTest('semicolons');
+        $this->exec_test('semicolons');
     }
 
-    public function testShortenableProperties()
+    public function test_shortenable_properties()
     {
-        $this->execTest('shortenable-properties');
+        $this->exec_test('shortenable-properties');
     }
 
-    public function testStarUnderscoreHacks()
+    public function test_star_underscore_hacks()
     {
-        $this->execTest('star-underscore-hacks');
+        $this->exec_test('star-underscore-hacks');
     }
 
-    public function testStrings()
+    public function test_strings()
     {
-        $this->execTest('strings');
+        $this->exec_test('strings');
     }
 
-    public function testTextShadowProperty()
+    public function test_text_shadow_property()
     {
-        $this->execTest('text-shadow');
+        $this->exec_test('text-shadow');
     }
 
-    public function testUnitMs()
+    public function test_unit_ms()
     {
-        $this->execTest('unit-ms');
+        $this->exec_test('unit-ms');
     }
 
-    public function testWebkitTransformOrigin()
+    public function test_webkit_transform_origin()
     {
-        $this->execTest('webkit-transform-origin');
+        $this->exec_test('webkit-transform-origin');
     }
 
     // Frameworks
 
-    public function testBootstrap()
+    public function test_bootstrap()
     {
-        $this->execTest('bootstrap');
+        $this->exec_test('bootstrap');
     }
 
-    public function testBulma()
+    public function test_bulma()
     {
-        $this->execTest('bulma');
+        $this->exec_test('bulma');
     }
 
-    public function testFoundation()
+    public function test_foundation()
     {
-        $this->execTest('foundation');
+        $this->exec_test('foundation');
     }
 
-    public function testKube()
+    public function test_kube()
     {
-        $this->execTest('kube');
+        $this->exec_test('kube');
     }
 
-    public function testMaterialize()
+    public function test_materialize()
     {
-        $this->execTest('materialize');
+        $this->exec_test('materialize');
     }
 
-    public function testMui()
+    public function test_mui()
     {
-        $this->execTest('mui');
+        $this->exec_test('mui');
     }
 
-    public function testPure()
+    public function test_pure()
     {
-        $this->execTest('pure');
+        $this->exec_test('pure');
     }
 
 }

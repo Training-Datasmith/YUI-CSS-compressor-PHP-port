@@ -31,10 +31,10 @@ Require Composer's autoloader file:
 
 require './vendor/autoload.php';
 
-use tubalmartin\CssMin\Minifier as CSSmin;
+use tubalmartin\Css_Min\Minifier;
 
 // Use it!
-$compressor = new CSSmin;
+$compressor = new Minifier;
 ```
 
 ### Requirements
@@ -61,44 +61,44 @@ There are three ways you can use this library:
 // Autoload libraries
 require './vendor/autoload.php';
 
-use tubalmartin\CssMin\Minifier as CSSmin;
+use tubalmartin\Css_Min\Minifier;
 
 // Extract the CSS code you want to compress from your CSS files
 $input_css = file_get_contents('test.css');
 
-// Create a new CSSmin object.
-// By default CSSmin will try to raise PHP settings.
-// If you don't want CSSmin to raise the PHP settings pass FALSE to
-// the constructor i.e. $compressor = new CSSmin(false);
-$compressor = new CSSmin;
+// Create a new Minifier object.
+// By default Css_Min will try to raise PHP settings.
+// If you don't want Css_Min to raise the PHP settings pass FALSE to
+// the constructor i.e. $compressor = new Minifier(false);
+$compressor = new Minifier;
 
 // Set the compressor up before compressing (global setup):
 
 // Keep sourcemap comment in the output.
 // Default behavior removes it.
-$compressor->keepSourceMapComment();
+$compressor->keep_source_map_comment();
 
 // Remove important comments from output.
-$compressor->removeImportantComments();
+$compressor->remove_important_comments();
 
 // Split long lines in the output approximately every 1000 chars.
-$compressor->setLineBreakPosition(1000);
+$compressor->set_line_break_position(1000);
 
 // Override any PHP configuration options before calling run() (optional)
-$compressor->setMemoryLimit('256M');
-$compressor->setMaxExecutionTime(120);
-$compressor->setPcreBacktrackLimit(3000000);
-$compressor->setPcreRecursionLimit(150000);
+$compressor->set_memory_limit('256M');
+$compressor->set_max_execution_time(120);
+$compressor->set_pcre_backtrack_limit(3000000);
+$compressor->set_pcre_recursion_limit(150000);
 
 // Compress the CSS code!
 $output_css = $compressor->run($input_css);
 
-// You can override any setup between runs without having to create another CSSmin object.
+// You can override any setup between runs without having to create another Css_Min object.
 // Let's say you want to remove the sourcemap comment from the output and
 // disable splitting long lines in the output.
-// You can achieve that using the methods `keepSourceMap` and `setLineBreakPosition`:
-$compressor->keepSourceMapComment(false);
-$compressor->setLineBreakPosition(0);
+// You can achieve that using the methods `keep_source_map` and `set_line_break_position`:
+$compressor->keep_source_map_comment(false);
+$compressor->set_line_break_position(0);
 $output_css = $compressor->run($input_css); 
 
 // Do whatever you need with the compressed CSS code
@@ -175,78 +175,78 @@ Here's how to use it:
 
 ## 4. API Reference
 
-### __construct ([ bool *$raisePhpLimits* ])
+### __construct ([ bool *$raise_php_limits* ])
 
-Class constructor, creates a new CSSmin object.
+Class constructor, creates a new Minifier object.
 
 **Parameters**
 
-*raisePhpLimits*
+*raise_php_limits*
 
-If TRUE, CSSmin will try to raise the values of some php configuration options.
+If TRUE, Css_Min will try to raise the values of some php configuration options.
 Set to FALSE to keep the values of your php configuration options.
 Defaults to TRUE.
 
 ### run (string *$css*)
 
 Minifies a string of uncompressed CSS code.
-`run()` may be called multiple times on a single CSSmin instance.
+`run()` may be called multiple times on a single Css_Min instance.
 
 **Parameters**
 
 *css*
 
 A string of uncompressed CSS code.
-CSSmin default value: `''` (empty string).
+Css_Min default value: `''` (empty string).
 
 **Return Values**
 
 A string of compressed CSS code or an empty string if no string is passed.
 
-### keepSourceMapComment (bool *$keepSourceMap*)
+### keep_source_map_comment (bool *$keep_source_map*)
 
 Sets whether to keep sourcemap comment `/*# sourceMappingURL=<path> */`in the output.  
-CSSmin default behavior: Sourcemap comment gets removed from output.
+Css_Min default behavior: Sourcemap comment gets removed from output.
 
-### removeImportantComments (bool *$removeImportantComments*)
+### remove_important_comments (bool *$remove_important_comments*)
 
 Sets whether to remove important comments from output.  
-CSSmin default behavior: Important comments outside declaration blocks are kept in the output.
+Css_Min default behavior: Important comments outside declaration blocks are kept in the output.
 
-### setLinebreakPosition (int *$position*)
+### set_line_break_position (int *$position*)
 
 Some source control tools don't like it when files containing lines longer than, say 8000 characters, are checked in.
 The linebreak option is used in that case to split long lines after a specific column.
 
-CSSmin default value: `0` (all CSS code in 1 long line).  
+Css_Min default value: `0` (all CSS code in 1 long line).  
 Minimum value supported: `1`.
 
-### setMaxExecutionTime (int *$seconds*)
+### set_max_execution_time (int *$seconds*)
 
 Sets the `max_execution_time` configuration option for this script
 
-CSSmin default value: `60`  
+Css_Min default value: `60`  
 Values & notes: [max_execution_time documentation](http://php.net/manual/en/info.configuration.php#ini.max-execution-time)
 
-### setMemoryLimit (mixed *$limit*)
+### set_memory_limit (mixed *$limit*)
 
 Sets the `memory_limit` configuration option for this script
 
-CSSmin default value: `128M`  
+Css_Min default value: `128M`  
 Values & notes: [memory_limit documentation](http://php.net/manual/en/ini.core.php#ini.memory-limit)
 
-### setPcreBacktrackLimit (int *$limit*)
+### set_pcre_backtrack_limit (int *$limit*)
 
 Sets the `pcre.backtrack_limit` configuration option for this script
 
-CSSmin default value: `1000000`  
+Css_Min default value: `1000000`  
 Values & notes: [pcre.backtrack_limit documentation](http://php.net/manual/en/pcre.configuration.php#ini.pcre.backtrack-limit)
 
-### setPcreRecursionLimit (int *$limit*)
+### set_pcre_recursion_limit (int *$limit*)
 
 Sets the `pcre.recursion_limit` configuration option for this script.
 
-CSSmin default value: `500000`  
+Css_Min default value: `500000`  
 Values & notes: [pcre.recursion_limit documentation](http://php.net/manual/en/pcre.configuration.php#ini.pcre.recursion-limit)
 
 
@@ -282,11 +282,11 @@ FIXED:
 
 NEW:
 * API:
-  * Removed: `setChunkLength()` method and `--chunk-length` CLI argument.
-  * Modified: `keepSourceMap()` method is now named `keepSourceMapComment()`. CLI argument `--keep-sourcemap` stays the same but we've added `--keep-sourcemap-comment` too.
+  * Removed: `set_chunk_length()` method and `--chunk-length` CLI argument.
+  * Modified: `keep_source_map()` method is now named `keep_source_map_comment()`. CLI argument `--keep-sourcemap` stays the same but we've added `--keep-sourcemap-comment` too.
   * Modified: `run()` method signature. It only accepts one argument now.
-  * Added: `removeImportantComments()` method & `--keep-important-comments` CLI argument.
-* Important comments `/*! ... */` can be optionally removed from output too calling `removeImportantComments()` method.
+  * Added: `remove_important_comments()` method & `--keep-important-comments` CLI argument.
+* Important comments `/*! ... */` can be optionally removed from output too calling `remove_important_comments()` method.
 
 ### v3.3.1 16 May 2017
 
@@ -303,7 +303,7 @@ NOTES:
 * Pretty big refactor done for two main reasons:
   * Make minified output even more reliable even when a potential scenario has not been tested beforehand.
   * Make development, testing and contribution a bit easier due to simplified logic.
-* As a consequence of this refactor, stylesheet chunking is not needed anymore. `setChunkLength` method and `--chunk-length` CLI argument
+* As a consequence of this refactor, stylesheet chunking is not needed anymore. `set_chunk_length` method and `--chunk-length` CLI argument
   still exist for backwards compatibility reasons but have no effect at all.
 
 ### v3.2.0 10 May 2017
@@ -335,7 +335,7 @@ FIXED:
 
 PHP version used: 5.3.29
 
-| chunkLength | v3.1.1 | v3.1.2 |
+| chunk_length | v3.1.1 | v3.1.2 |
 | --- | --- | --- |
 | 100 | 6.8s | 2.6s |
 | 1000 | 5.3s | 2s |
@@ -344,7 +344,7 @@ PHP version used: 5.3.29
 
 PHP version used: 7.0.8
 
-| chunkLength | v3.1.1 | v3.1.2 |
+| chunk_length | v3.1.1 | v3.1.2 |
 | --- | --- | --- |
 | 100 | 2s | 0.72s |
 | 1000 | 1s | 0.37s |
@@ -368,7 +368,7 @@ PHP version used: 7.0.8
 
 PHP version used: 5.3.29
 
-| chunkLength | v3.0.0 | v3.1.0 |
+| chunk_length | v3.0.0 | v3.1.0 |
 | --- | --- | --- |
 | 100 | 38s | 6.9s |
 | 1000 | 8.5s | 5.4s |
@@ -377,7 +377,7 @@ PHP version used: 5.3.29
 
 PHP version used: 7.0.8
 
-| chunkLength | v3.0.0 | v3.1.0 |
+| chunk_length | v3.0.0 | v3.1.0 |
 | --- | --- | --- |
 | 100 | 22.8s | 2.1s |
 | 1000 | 2.9s | 1.1s |
@@ -414,7 +414,7 @@ PHP version used: 7.0.8
 * Added `set_chunk_length` method.
 * `bold` & `normal` values get compressed to `700` & `400` respectively for `font-weight` property.
 * GUI updated.
-* FineDiff library loaded through Composer.
+* cogpowered/finediff loaded through Composer.
 * README updated.
 
 ### v2.4.8-p7 26 Mar 2017

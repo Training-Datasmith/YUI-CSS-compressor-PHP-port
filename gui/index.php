@@ -2,72 +2,85 @@
 
 require '../vendor/autoload.php';
 
-use tubalmartin\CssMin\Minifier as CSSmin;
+use tubalmartin\Css_Min\Minifier;
 
 mb_internal_encoding('UTF-8');
 
 if (!empty($_POST)) :
-    // Form options
-    parse_str($_POST['options'] ?? '', $parsedOptions);
+    $parsed_options = array();
+    if (isset($_POST['options'])) {
+        parse_str($_POST['options'], $parsed_options);
+    }
 
-    $linebreak_pos = isset($parsedOptions['linebreak_pos']) && trim($parsedOptions['linebreak_pos']) !== ''
-        ? $parsedOptions['linebreak_pos'] : false;
-    $raise_php = isset($parsedOptions['raise_php']) ? true : false;
+    $linebreak_pos = false;
+    if (isset($parsed_options['linebreak_pos']) && trim($parsed_options['linebreak_pos']) !== '') {
+        $linebreak_pos = $parsed_options['linebreak_pos'];
+    }
 
-    // Allowed values for PHP resource limits
-    $allowed_memory_limits = ['32M', '64M', '128M', '256M', '512M', '1G'];
-    $allowed_execution_times = [30, 60, 120, 300];
-    $allowed_pcre_backtrack = [100, 1000, 2000, 5000];
-    $allowed_pcre_recursion = [100, 250, 500, 1000];
+    $raise_php = isset($parsed_options['raise_php']);
 
-    $memory_limit = in_array($parsedOptions['memory_limit'] ?? '', $allowed_memory_limits, true)
-        ? $parsedOptions['memory_limit'] : '128M';
-    $max_execution_time = in_array((int) ($parsedOptions['max_execution_time'] ?? 0), $allowed_execution_times, true)
-        ? (int) $parsedOptions['max_execution_time'] : 60;
-    $pcre_backtrack_limit = in_array((int) ($parsedOptions['pcre_backtrack_limit'] ?? 0), $allowed_pcre_backtrack, true)
-        ? (int) $parsedOptions['pcre_backtrack_limit'] : 1000;
-    $pcre_recursion_limit = in_array((int) ($parsedOptions['pcre_recursion_limit'] ?? 0), $allowed_pcre_recursion, true)
-        ? (int) $parsedOptions['pcre_recursion_limit'] : 500;
+    $allowed_memory_limits = array('32M', '64M', '128M', '256M', '512M', '1G');
+    $allowed_execution_times = array(30, 60, 120, 300);
+    $allowed_pcre_backtrack = array(100, 1000, 2000, 5000);
+    $allowed_pcre_recursion = array(100, 250, 500, 1000);
 
-    // Create a new CSSmin object and try to raise PHP settings
-    $compressor = new CSSmin($raise_php);
+    $memory_limit = '128M';
+    if (isset($parsed_options['memory_limit']) && in_array($parsed_options['memory_limit'], $allowed_memory_limits, true)) {
+        $memory_limit = $parsed_options['memory_limit'];
+    }
+
+    $max_execution_time = 60;
+    if (isset($parsed_options['max_execution_time']) && in_array((int) $parsed_options['max_execution_time'], $allowed_execution_times, true)) {
+        $max_execution_time = (int) $parsed_options['max_execution_time'];
+    }
+
+    $pcre_backtrack_limit = 1000;
+    if (isset($parsed_options['pcre_backtrack_limit']) && in_array((int) $parsed_options['pcre_backtrack_limit'], $allowed_pcre_backtrack, true)) {
+        $pcre_backtrack_limit = (int) $parsed_options['pcre_backtrack_limit'];
+    }
+
+    $pcre_recursion_limit = 500;
+    if (isset($parsed_options['pcre_recursion_limit']) && in_array((int) $parsed_options['pcre_recursion_limit'], $allowed_pcre_recursion, true)) {
+        $pcre_recursion_limit = (int) $parsed_options['pcre_recursion_limit'];
+    }
+
+    $compressor = new Minifier($raise_php);
 
     if ($linebreak_pos !== false) {
-        $compressor->setLineBreakPosition($linebreak_pos);
+        $compressor->set_line_break_position($linebreak_pos);
     }
 
-    if (isset($parsedOptions['keep_sourcemap'])) {
-        $compressor->keepSourceMapComment();
+    if (isset($parsed_options['keep_sourcemap'])) {
+        $compressor->keep_source_map_comment();
     }
 
-    if (isset($parsedOptions['remove_important_comments'])) {
-        $compressor->removeImportantComments();
+    if (isset($parsed_options['remove_important_comments'])) {
+        $compressor->remove_important_comments();
     }
 
     if ($raise_php) {
-        $compressor->setMemoryLimit($memory_limit);
-        $compressor->setMaxExecutionTime($max_execution_time);
-        $compressor->setPcreBacktrackLimit(1000 * $pcre_backtrack_limit);
-        $compressor->setPcreRecursionLimit(1000 * $pcre_recursion_limit);
+        $compressor->set_memory_limit($memory_limit);
+        $compressor->set_max_execution_time($max_execution_time);
+        $compressor->set_pcre_backtrack_limit(1000 * $pcre_backtrack_limit);
+        $compressor->set_pcre_recursion_limit(1000 * $pcre_recursion_limit);
     }
 
-    // Enforce a size limit on CSS input (1 MB)
-    $cssInput = $_POST['css'] ?? '';
-    if (mb_strlen($cssInput, '8bit') > 1048576) {
-        echo json_encode(['error' => 'CSS input exceeds maximum allowed size']);
+    $css_input = isset($_POST['css']) ? $_POST['css'] : '';
+    if (mb_strlen($css_input, '8bit') > 1048576) {
+        echo json_encode(array('error' => 'CSS input exceeds maximum allowed size'));
         exit;
     }
 
-    // Compress the CSS code and store data
-    $output = [];
-    $output['css'] = $compressor->run($cssInput);
-    $output['originalSize'] = mb_strlen($cssInput, '8bit');
-    $output['compressedSize'] = mb_strlen($output['css'], '8bit');
-    $output['bytesSaved'] = $output['originalSize'] - $output['compressedSize'];
-    $output['compressionRatio'] = round(($output['bytesSaved'] * 100) /
-        ($output['originalSize'] === 0 ? 1 : $output['originalSize']), 2);
+    $output = array();
+    $output['css'] = $compressor->run($css_input);
+    $output['original_size'] = mb_strlen($css_input, '8bit');
+    $output['compressed_size'] = mb_strlen($output['css'], '8bit');
+    $output['bytes_saved'] = $output['original_size'] - $output['compressed_size'];
+    $output['compression_ratio'] = round(
+        ($output['bytes_saved'] * 100) / ($output['original_size'] === 0 ? 1 : $output['original_size']),
+        2
+    );
 
-    // Output data
     echo json_encode($output);
 else :
     ?>
@@ -92,7 +105,6 @@ else :
     <div class="container-fluid">
         <div class="row-fluid">
             <div id="body" class="span9">
-                <!--Body content-->
                 <div id="less-error-message" class="less-error-message"></div>
                 <div class="well">
                     <div id="input-container">
@@ -150,7 +162,6 @@ else :
                                 <option value="256M">256M</option>
                                 <option value="512M">512M</option>
                                 <option value="1G">1G</option>
-                                <option value="-1">No limit</option>
                             </select>
                             <label>Max execution time</label>
                             <select name="max_execution_time" class="span2">
@@ -192,4 +203,3 @@ else :
 </html>
 <?php
 endif;
-?>

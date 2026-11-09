@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace tubalmartin\CssMin\Tests\FineDiff\Render;
+namespace tubalmartin\Css_Min\Tests\Fine_Diff\Render;
 
 use cogpowered\FineDiff\Render\Renderer;
 
@@ -16,11 +14,11 @@ class Cli extends Renderer
             $deletion = substr($from, $from_offset, $from_len);
 
             if (strcspn($deletion, " \n\r") === 0) {
-                $deletion = str_replace(["\n","\r"], ['\n','\r'], $deletion);
+                $deletion = str_replace(array("\n", "\r"), array('\\n', '\\r'), $deletion);
             }
 
             $text = "\x1b[97m\x1b[41m".$deletion."\x1b[0m";
-        } else { /* if ( $opcode === 'i' ) */
+        } else {
             $text = "\x1b[97m\x1b[42m".substr($from, $from_offset, $from_len)."\x1b[0m";
         }
 
