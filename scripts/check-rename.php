@@ -36,54 +36,117 @@ $old_names = array(
 );
 
 /**
- * Site-scoped allow rules: relative path => list of {pattern, names}.
+ * File-keyed allowlist: repo-relative path + exact line/call pattern + allowed identifiers on that line.
  *
- * @return array<string, array<int, array{pattern: string, names: array<int, string>}>>
+ * @return array<int, array{path: string, pattern: string, names: array<int, string>}>
  */
-function third_party_line_rules()
+function site_allowlist()
 {
     return array(
-        'tests/Minifier_Test.php' => array(
-            array(
-                'pattern' => '/^\s*use\s+PHPUnit\\\\Framework\\\\TestCase\s*;/',
-                'names' => array('PHPUnit', 'Framework', 'TestCase'),
-            ),
-            array(
-                'pattern' => '/extends\s+TestCase\b/',
-                'names' => array('TestCase'),
-            ),
-            array(
-                'pattern' => '/function\s+setUp\s*\(/',
-                'names' => array('setUp'),
-            ),
-            array(
-                'pattern' => '/\$this\s*->\s*assertEquals\s*\(/',
-                'names' => array('assertEquals'),
-            ),
+        array(
+            'path' => 'tests/Minifier_Test.php',
+            'pattern' => '/^\s*use\s+PHPUnit\\\\Framework\\\\TestCase\s*;/',
+            'names' => array('PHPUnit', 'Framework', 'TestCase'),
         ),
-        'tests/bin/runner' => array(
-            array(
-                'pattern' => '/use\s+cogpowered\\\\FineDiff\\\\Diff\s*;/',
-                'names' => array('FineDiff', 'Diff'),
-            ),
-            array(
-                'pattern' => '/new\s+Diff\s*\(/',
-                'names' => array('Diff'),
-            ),
-            array(
-                'pattern' => '/\$diff\s*->\s*getOpcodes\s*\(/',
-                'names' => array('getOpcodes'),
-            ),
+        array(
+            'path' => 'tests/Minifier_Test.php',
+            'pattern' => '/extends\s+TestCase\b/',
+            'names' => array('TestCase'),
         ),
-        'tests/Fine_Diff/Render/Cli.php' => array(
-            array(
-                'pattern' => '/use\s+cogpowered\\\\FineDiff\\\\Render\\\\Renderer\s*;/',
-                'names' => array('FineDiff', 'Render', 'Renderer'),
-            ),
-            array(
-                'pattern' => '/extends\s+Renderer\b/',
-                'names' => array('Renderer'),
-            ),
+        array(
+            'path' => 'tests/Minifier_Test.php',
+            'pattern' => '/function\s+setUp\s*\(/',
+            'names' => array('setUp'),
+        ),
+        array(
+            'path' => 'tests/Minifier_Test.php',
+            'pattern' => '/\$this\s*->\s*assertEquals\s*\(/',
+            'names' => array('assertEquals'),
+        ),
+        array(
+            'path' => 'tests/bin/runner',
+            'pattern' => '/use\s+cogpowered\\\\FineDiff\\\\Diff\s*;/',
+            'names' => array('FineDiff', 'Diff'),
+        ),
+        array(
+            'path' => 'tests/bin/runner',
+            'pattern' => '/new\s+Diff\s*\(/',
+            'names' => array('Diff'),
+        ),
+        array(
+            'path' => 'tests/bin/runner',
+            'pattern' => '/\$diff\s*->\s*getOpcodes\s*\(/',
+            'names' => array('getOpcodes'),
+        ),
+        array(
+            'path' => 'tests/Fine_Diff/Render/Cli.php',
+            'pattern' => '/use\s+cogpowered\\\\FineDiff\\\\Render\\\\Renderer\s*;/',
+            'names' => array('FineDiff', 'Render', 'Renderer'),
+        ),
+        array(
+            'path' => 'tests/Fine_Diff/Render/Cli.php',
+            'pattern' => '/extends\s+Renderer\b/',
+            'names' => array('Renderer'),
+        ),
+        array(
+            'path' => 'scripts/check-rename.php',
+            'pattern' => '/new\s+RecursiveIteratorIterator\s*\(/',
+            'names' => array('RecursiveIteratorIterator'),
+        ),
+        array(
+            'path' => 'scripts/check-rename.php',
+            'pattern' => '/new\s+RecursiveDirectoryIterator\s*\(/',
+            'names' => array('RecursiveDirectoryIterator'),
+        ),
+        array(
+            'path' => 'scripts/check-rename.php',
+            'pattern' => '/FilesystemIterator::SKIP_DOTS/',
+            'names' => array('FilesystemIterator'),
+        ),
+        array(
+            'path' => 'scripts/check-rename.php',
+            'pattern' => '/\$file_info\s*->\s*isFile\s*\(/',
+            'names' => array('isFile'),
+        ),
+        array(
+            'path' => 'scripts/check-rename.php',
+            'pattern' => '/\$file_info\s*->\s*getPathname\s*\(/',
+            'names' => array('getPathname'),
+        ),
+        array(
+            'path' => 'scripts/check-rename.php',
+            'pattern' => '/\$file_info\s*->\s*getExtension\s*\(/',
+            'names' => array('getExtension'),
+        ),
+        array(
+            'path' => 'gui/scripts.js',
+            'pattern' => '/\.slideDown\s*\(/',
+            'names' => array('slideDown'),
+        ),
+        array(
+            'path' => 'gui/scripts.js',
+            'pattern' => '/\.slideUp\s*\(/',
+            'names' => array('slideUp'),
+        ),
+        array(
+            'path' => 'gui/scripts.js',
+            'pattern' => '/\.preventDefault\s*\(/',
+            'names' => array('preventDefault'),
+        ),
+        array(
+            'path' => 'gui/scripts.js',
+            'pattern' => '/\bparseInt\s*\(/',
+            'names' => array('parseInt'),
+        ),
+        array(
+            'path' => 'gui/scripts.js',
+            'pattern' => '/\.toCSS\s*\(/',
+            'names' => array('toCSS'),
+        ),
+        array(
+            'path' => 'gui/scripts.js',
+            'pattern' => '/\.button\s*\(/',
+            'names' => array('button'),
         ),
     );
 }
@@ -185,98 +248,26 @@ function get_line_text($code, $line_no)
 }
 
 /**
- * @param string $line
- * @return bool
- */
-function line_allows_get_opcodes($line)
-{
-    return (bool) preg_match('/\$diff\s*->\s*getOpcodes\s*\(/', $line);
-}
-
-/**
- * @param string $name
- * @param string $line
- * @return bool
- */
-function php_runtime_identifier_allowed_on_line($name, $line)
-{
-    if (in_array($name, array('getOpcodes', 'assertEquals', 'setUp', 'TestCase'), true)) {
-        return false;
-    }
-
-    $patterns = array(
-        '/\bnew\s+' . preg_quote($name, '/') . '\s*\(/',
-        '/\bextends\s+' . preg_quote($name, '/') . '\b/',
-        '/\bimplements\s+' . preg_quote($name, '/') . '\b/',
-        '/\b' . preg_quote($name, '/') . '::/',
-        '/@var\s+' . preg_quote($name, '/') . '\b/',
-        '/\buse\s+[^;]*\b' . preg_quote($name, '/') . '\b/',
-        '/->\s*' . preg_quote($name, '/') . '\s*\(/',
-    );
-
-    foreach ($patterns as $pattern) {
-        if (preg_match($pattern, $line)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
  * @param string $name
  * @param string $relative_path
  * @param string $line_text
  * @return bool
  */
-function token_allowed_at_site($name, $relative_path, $line_text)
+function identifier_allowed_at_site($name, $relative_path, $line_text)
 {
-    if ($name === 'getOpcodes' && line_allows_get_opcodes($line_text)) {
-        return true;
-    }
-
-    if (php_runtime_identifier_allowed_on_line($name, $line_text)) {
-        return true;
-    }
-
-    $rules = third_party_line_rules();
-    if (!isset($rules[$relative_path])) {
-        return false;
-    }
-
-    foreach ($rules[$relative_path] as $rule) {
-        if (!preg_match($rule['pattern'], $line_text)) {
+    foreach (site_allowlist() as $entry) {
+        if ($entry['path'] !== $relative_path) {
             continue;
         }
-        if (in_array($name, $rule['names'], true)) {
+        if (!preg_match($entry['pattern'], $line_text)) {
+            continue;
+        }
+        if (in_array($name, $entry['names'], true)) {
             return true;
         }
     }
 
     return false;
-}
-
-/**
- * @param string $line
- * @param string $ident
- * @return bool
- */
-function js_library_identifier_allowed_on_line($line, $ident)
-{
-    $patterns = array(
-        'slideDown' => '/\.slideDown\s*\(/',
-        'slideUp' => '/\.slideUp\s*\(/',
-        'preventDefault' => '/\.preventDefault\s*\(/',
-        'parseInt' => '/\bparseInt\s*\(/',
-        'toCSS' => '/\.toCSS\s*\(/',
-        'button' => '/\.button\s*\(/',
-    );
-
-    if (!isset($patterns[$ident])) {
-        return false;
-    }
-
-    return (bool) preg_match($patterns[$ident], $line);
 }
 
 /**
@@ -381,7 +372,7 @@ function scan_php_file($path, $code = null, $repo_root = null)
         }
 
         $line_text = get_line_text($code, $token[2]);
-        if (token_allowed_at_site($name, $relative_path, $line_text)) {
+        if (identifier_allowed_at_site($name, $relative_path, $line_text)) {
             continue;
         }
 
@@ -393,15 +384,24 @@ function scan_php_file($path, $code = null, $repo_root = null)
 
 /**
  * @param string $path
+ * @param string|null $content
+ * @param string|null $repo_root
  * @return array<int, string>
  */
-function scan_js_file($path)
+function scan_js_file($path, $content = null, $repo_root = null)
 {
-    $content = file_get_contents($path);
+    if ($repo_root === null) {
+        $repo_root = dirname(__DIR__);
+    }
+
+    if ($content === null) {
+        $content = file_get_contents($path);
+    }
     if ($content === false) {
         return array('unreadable js file');
     }
 
+    $relative_path = relative_repo_path($path, $repo_root);
     $violations = array();
     $lines = explode("\n", $content);
     foreach ($lines as $line_no => $line) {
@@ -412,7 +412,7 @@ function scan_js_file($path)
             if (!identifier_has_camel_hump($ident)) {
                 continue;
             }
-            if (js_library_identifier_allowed_on_line($line, $ident)) {
+            if (identifier_allowed_at_site($ident, $relative_path, $line)) {
                 continue;
             }
             $violations[] = "js identifier {$ident} at line " . ($line_no + 1) . " in {$path}";
@@ -420,6 +420,22 @@ function scan_js_file($path)
     }
 
     return $violations;
+}
+
+/**
+ * @param array<int, string> $violations
+ * @param string $needle
+ * @return bool
+ */
+function violations_contain($violations, $needle)
+{
+    foreach ($violations as $violation) {
+        if (strpos($violation, $needle) !== false) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -436,33 +452,54 @@ function verify_allowlist_demo($repo_root)
 
     $bad_foo = $tmpdir . '/bad_foo.php';
     file_put_contents($bad_foo, "<?php\n\$foo = new stdClass();\n\$foo->getOpcodes(1, 2);\n");
-    $foo_violations = scan_php_file($bad_foo, null, $repo_root);
-    if (count($foo_violations) === 0) {
-        fwrite(STDERR, "rename-check: allowlist demo failed (expected rejection of misplaced getOpcodes).\n");
+    if (!violations_contain(scan_php_file($bad_foo, null, $repo_root), 'getOpcodes')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected rejection of \$foo->getOpcodes).\n");
         return false;
     }
 
     $bad_camel = $tmpdir . '/bad_camel.php';
     file_put_contents($bad_camel, "<?php\nfunction myBadCallback() {}\n");
-    $camel_violations = scan_php_file($bad_camel, null, $repo_root);
-    if (count($camel_violations) === 0) {
+    if (count(scan_php_file($bad_camel, null, $repo_root)) === 0) {
         fwrite(STDERR, "rename-check: allowlist demo failed (expected rejection of generic repo-owned camelCase).\n");
         return false;
     }
 
-    $good_diff = $repo_root . '/tests/bin/runner';
-    $runner_snippet = "\$diff = new stdClass();\n\$diff->getOpcodes(1, 2);\n";
-    $good_code = "<?php\n" . $runner_snippet;
-    $good_violations = scan_php_file($good_diff, $good_code, $repo_root);
-    foreach ($good_violations as $violation) {
-        if (strpos($violation, 'getOpcodes') !== false) {
-            fwrite(STDERR, "rename-check: allowlist demo failed (expected acceptance at Diff site).\n");
-            return false;
-        }
+    $get_opcodes_line = "\$diff->getOpcodes(\$a, \$b);";
+    $snippet = "<?php\n" . $get_opcodes_line . "\n";
+    $runner_path = $repo_root . '/tests/bin/runner';
+    if (violations_contain(scan_php_file($runner_path, $snippet, $repo_root), 'getOpcodes')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected getOpcodes accepted under tests/bin/runner).\n");
+        return false;
+    }
+
+    $other_path = $repo_root . '/src/__rename_demo_get_opcodes__.php';
+    if (!violations_contain(scan_php_file($other_path, $snippet, $repo_root), 'getOpcodes')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected identical getOpcodes line rejected outside tests/bin/runner).\n");
+        return false;
+    }
+
+    $bad_finediff = $tmpdir . '/bad_finediff.php';
+    file_put_contents($bad_finediff, "<?php\n\$x = new FineDiff();\n");
+    if (!violations_contain(scan_php_file($bad_finediff, null, $repo_root), 'FineDiff')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected rejection of new FineDiff outside listed site).\n");
+        return false;
+    }
+
+    $slide_line = "less_console.slideDown('fast');\n";
+    $scripts_js = $repo_root . '/gui/scripts.js';
+    $other_js = $repo_root . '/gui/__rename_demo__.js';
+    if (violations_contain(scan_js_file($scripts_js, $slide_line, $repo_root), 'slideDown')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected slideDown accepted in gui/scripts.js).\n");
+        return false;
+    }
+    if (!violations_contain(scan_js_file($other_js, $slide_line, $repo_root), 'slideDown')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected slideDown rejected outside gui/scripts.js).\n");
+        return false;
     }
 
     @unlink($bad_foo);
     @unlink($bad_camel);
+    @unlink($bad_finediff);
     @rmdir($tmpdir);
 
     return true;
@@ -528,7 +565,7 @@ foreach ($files as $file) {
     }
 
     if (substr($file, -3) === '.js') {
-        $all_violations = array_merge($all_violations, scan_js_file($file));
+        $all_violations = array_merge($all_violations, scan_js_file($file, null, $repo_root));
         continue;
     }
 
