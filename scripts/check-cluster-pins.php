@@ -2,16 +2,16 @@
 
 $expected = array();
 
-$repoRoot = dirname(__DIR__);
-$installedPhpPath = $repoRoot . '/vendor/composer/installed.php';
-$installedJsonPath = $repoRoot . '/vendor/composer/installed.json';
+$repo_root = dirname(__DIR__);
+$installed_php_path = $repo_root . '/vendor/composer/installed.php';
+$installed_json_path = $repo_root . '/vendor/composer/installed.json';
 
-if (!is_readable($installedPhpPath)) {
+if (!is_readable($installed_php_path)) {
     fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.php not found; run composer update first.\n");
     exit(1);
 }
 
-if (!is_readable($installedJsonPath)) {
+if (!is_readable($installed_json_path)) {
     fwrite(STDERR, "check-cluster-pins: vendor/composer/installed.json not found; run composer update first.\n");
     exit(1);
 }
@@ -58,20 +58,20 @@ function load_installed_json_references($path)
 }
 
 /**
- * @param array{versions: array<string, array<string, mixed>>} $installedPhp
- * @param array<string, string> $jsonRefs
- * @param array<string, array{reference: string, alias?: string}> $wantMap
+ * @param array{versions: array<string, array<string, mixed>>} $installed_php
+ * @param array<string, string> $json_refs
+ * @param array<string, array{reference: string, alias?: string}> $want_map
  * @param string $side
  * @param bool $quiet
  * @return bool
  */
-function pins_ok_for_side($installedPhp, $jsonRefs, $wantMap, $side, $quiet = false)
+function pins_ok_for_side($installed_php, $json_refs, $want_map, $side, $quiet = false)
 {
-    $versions = isset($installedPhp['versions']) ? $installedPhp['versions'] : array();
+    $versions = isset($installed_php['versions']) ? $installed_php['versions'] : array();
     $failed = false;
 
-    foreach ($wantMap as $name => $want) {
-        $wantRef = strtolower($want['reference']);
+    foreach ($want_map as $name => $want) {
+        $want_ref = strtolower($want['reference']);
 
         if ($side === 'installed.php') {
             if (!isset($versions[$name])) {
@@ -108,20 +108,20 @@ function pins_ok_for_side($installedPhp, $jsonRefs, $wantMap, $side, $quiet = fa
                 continue;
             }
 
-            if (!hash_equals($wantRef, strtolower($reference))) {
+            if (!hash_equals($want_ref, strtolower($reference))) {
                 if (!$quiet) {
                     fwrite(STDERR, sprintf(
                         "check-cluster-pins [%s]: %s reference mismatch (expected %s, got %s).\n",
                         $side,
                         $name,
-                        $wantRef,
+                        $want_ref,
                         strtolower($reference)
                     ));
                 }
                 $failed = true;
             }
         } else {
-            if (!isset($jsonRefs[$name])) {
+            if (!isset($json_refs[$name])) {
                 if (!$quiet) {
                     fwrite(STDERR, sprintf("check-cluster-pins [%s]: %s is not installed.\n", $side, $name));
                 }
@@ -129,14 +129,14 @@ function pins_ok_for_side($installedPhp, $jsonRefs, $wantMap, $side, $quiet = fa
                 continue;
             }
 
-            if (!hash_equals($wantRef, $jsonRefs[$name])) {
+            if (!hash_equals($want_ref, $json_refs[$name])) {
                 if (!$quiet) {
                     fwrite(STDERR, sprintf(
                         "check-cluster-pins [%s]: %s reference mismatch (expected %s, got %s).\n",
                         $side,
                         $name,
-                        $wantRef,
-                        $jsonRefs[$name]
+                        $want_ref,
+                        $json_refs[$name]
                     ));
                 }
                 $failed = true;
@@ -147,59 +147,59 @@ function pins_ok_for_side($installedPhp, $jsonRefs, $wantMap, $side, $quiet = fa
     return !$failed;
 }
 
-$installedPhp = load_installed_php($installedPhpPath);
-$jsonRefs = load_installed_json_references($installedJsonPath);
+$installed_php = load_installed_php($installed_php_path);
+$json_refs = load_installed_json_references($installed_json_path);
 
-if (!pins_ok_for_side($installedPhp, $jsonRefs, $expected, 'installed.php')
-    || !pins_ok_for_side($installedPhp, $jsonRefs, $expected, 'installed.json')) {
+if (!pins_ok_for_side($installed_php, $json_refs, $expected, 'installed.php')
+    || !pins_ok_for_side($installed_php, $json_refs, $expected, 'installed.json')) {
     exit(1);
 }
 
 /**
- * @param array{versions: array<string, array<string, mixed>>} $installedPhp
+ * @param array{versions: array<string, array<string, mixed>>} $installed_php
  * @return array{versions: array<string, array<string, mixed>>}
  */
-function copy_installed_php($installedPhp)
+function copy_installed_php($installed_php)
 {
     $versions = array();
-    foreach ($installedPhp['versions'] as $name => $meta) {
+    foreach ($installed_php['versions'] as $name => $meta) {
         $versions[$name] = $meta;
     }
 
     return array('versions' => $versions);
 }
 
-$demoExpected = array(
+$demo_expected = array(
     'demo/cluster-pkg' => array(
         'reference' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
         'alias' => '1.0.0',
     ),
 );
-$wrongSha = '0000000000000000000000000000000000000000';
+$wrong_sha = '0000000000000000000000000000000000000000';
 
-$phpWrong = copy_installed_php($installedPhp);
-$phpWrong['versions']['demo/cluster-pkg'] = array(
-    'reference' => $wrongSha,
+$php_wrong = copy_installed_php($installed_php);
+$php_wrong['versions']['demo/cluster-pkg'] = array(
+    'reference' => $wrong_sha,
     'aliases' => array('1.0.0'),
 );
-$jsonOk = $jsonRefs;
-$jsonOk['demo/cluster-pkg'] = strtolower($demoExpected['demo/cluster-pkg']['reference']);
+$json_ok = $json_refs;
+$json_ok['demo/cluster-pkg'] = strtolower($demo_expected['demo/cluster-pkg']['reference']);
 
-$phpDemoPhpSideFailed = !pins_ok_for_side($phpWrong, $jsonOk, $demoExpected, 'installed.php', true);
-$phpDemoJsonSidePassed = pins_ok_for_side($phpWrong, $jsonOk, $demoExpected, 'installed.json', true);
+$php_demo_php_side_failed = !pins_ok_for_side($php_wrong, $json_ok, $demo_expected, 'installed.php', true);
+$php_demo_json_side_passed = pins_ok_for_side($php_wrong, $json_ok, $demo_expected, 'installed.json', true);
 
-$phpOk = copy_installed_php($installedPhp);
-$phpOk['versions']['demo/cluster-pkg'] = array(
-    'reference' => strtolower($demoExpected['demo/cluster-pkg']['reference']),
+$php_ok = copy_installed_php($installed_php);
+$php_ok['versions']['demo/cluster-pkg'] = array(
+    'reference' => strtolower($demo_expected['demo/cluster-pkg']['reference']),
     'aliases' => array('1.0.0'),
 );
-$jsonWrong = $jsonRefs;
-$jsonWrong['demo/cluster-pkg'] = $wrongSha;
+$json_wrong = $json_refs;
+$json_wrong['demo/cluster-pkg'] = $wrong_sha;
 
-$jsonDemoJsonSideFailed = !pins_ok_for_side($phpOk, $jsonWrong, $demoExpected, 'installed.json', true);
-$jsonDemoPhpSidePassed = pins_ok_for_side($phpOk, $jsonWrong, $demoExpected, 'installed.php', true);
+$json_demo_json_side_failed = !pins_ok_for_side($php_ok, $json_wrong, $demo_expected, 'installed.json', true);
+$json_demo_php_side_passed = pins_ok_for_side($php_ok, $json_wrong, $demo_expected, 'installed.php', true);
 
-if (!$phpDemoPhpSideFailed || !$phpDemoJsonSidePassed || !$jsonDemoJsonSideFailed || !$jsonDemoPhpSidePassed) {
+if (!$php_demo_php_side_failed || !$php_demo_json_side_passed || !$json_demo_json_side_failed || !$json_demo_php_side_passed) {
     fwrite(STDERR, "check-cluster-pins: wrong-SHA demo did not behave as expected.\n");
     exit(1);
 }

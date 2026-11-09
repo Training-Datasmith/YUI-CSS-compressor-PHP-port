@@ -4,7 +4,7 @@
 require __DIR__ . '/../../vendor/autoload.php';
 
 use tubalmartin\Css_Min\Minifier;
-use tubalmartin\Css_Min\Tests\Fine_Diff\Render\Cli as CliRenderer;
+use tubalmartin\Css_Min\Tests\Fine_Diff\Render\Cli as cli_renderer;
 use cogpowered\FineDiff\Diff;
 
 $opts = getopt(
@@ -70,7 +70,7 @@ if (strcmp($output, $expectation_contents) === 0) {
 }
 
 $diff = new Diff();
-$cli_renderer = new CliRenderer();
+$cli_renderer = new cli_renderer();
 $diff_string = $cli_renderer->process($expectation_contents, $diff->getOpcodes($expectation_contents, $output));
 fwrite(
     STDERR,
