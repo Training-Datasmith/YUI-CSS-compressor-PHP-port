@@ -166,6 +166,21 @@ if [[ ${rename_status} -ne 0 ]]; then
     rm -f "${rename_out}" "${rename_stripped}"
     exit "${rename_status}"
 fi
+if ! grep -Fxq 'rename-check: allowlist demo OK (accepted FineDiff use at tests/bin/runner)' "${rename_stripped}"; then
+    echo 'check-rename: missing allowlist demo success line (accepted FineDiff use at tests/bin/runner)' >&2
+    rm -f "${rename_out}" "${rename_stripped}"
+    exit 1
+fi
+if ! grep -Fxq 'rename-check: allowlist demo OK (rejected FineDiff use outside tests/bin/runner)' "${rename_stripped}"; then
+    echo 'check-rename: missing allowlist demo success line (rejected FineDiff use outside tests/bin/runner)' >&2
+    rm -f "${rename_out}" "${rename_stripped}"
+    exit 1
+fi
+if ! grep -Fxq 'rename-check: allowlist demo OK (rejected new FineDiff outside listed site)' "${rename_stripped}"; then
+    echo 'check-rename: missing allowlist demo success line (rejected new FineDiff outside listed site)' >&2
+    rm -f "${rename_out}" "${rename_stripped}"
+    exit 1
+fi
 if ! grep -Fxq 'rename-check: OK (no camelCase repo-owned names; baseline 54 tests, 54 assertions; allowlist demo rejected misplaced getOpcodes)' "${rename_stripped}"; then
     echo 'check-rename: missing success line' >&2
     rm -f "${rename_out}" "${rename_stripped}"

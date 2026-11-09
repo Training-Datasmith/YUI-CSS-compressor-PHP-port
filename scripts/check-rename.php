@@ -478,12 +478,28 @@ function verify_allowlist_demo($repo_root)
         return false;
     }
 
+    $use_finediff_line = 'use cogpowered\\FineDiff\\Diff;';
+    $use_snippet = "<?php\n" . $use_finediff_line . "\n";
+    if (violations_contain(scan_php_file($runner_path, $use_snippet, $repo_root), 'FineDiff')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected FineDiff accepted on use line under tests/bin/runner).\n");
+        return false;
+    }
+    fwrite(STDOUT, "rename-check: allowlist demo OK (accepted FineDiff use at tests/bin/runner)\n");
+
+    $other_use_path = $repo_root . '/src/__rename_demo_finediff_use__.php';
+    if (!violations_contain(scan_php_file($other_use_path, $use_snippet, $repo_root), 'FineDiff')) {
+        fwrite(STDERR, "rename-check: allowlist demo failed (expected identical FineDiff use line rejected outside tests/bin/runner).\n");
+        return false;
+    }
+    fwrite(STDOUT, "rename-check: allowlist demo OK (rejected FineDiff use outside tests/bin/runner)\n");
+
     $bad_finediff = $tmpdir . '/bad_finediff.php';
     file_put_contents($bad_finediff, "<?php\n\$x = new FineDiff();\n");
     if (!violations_contain(scan_php_file($bad_finediff, null, $repo_root), 'FineDiff')) {
         fwrite(STDERR, "rename-check: allowlist demo failed (expected rejection of new FineDiff outside listed site).\n");
         return false;
     }
+    fwrite(STDOUT, "rename-check: allowlist demo OK (rejected new FineDiff outside listed site)\n");
 
     $slide_line = "less_console.slideDown('fast');\n";
     $scripts_js = $repo_root . '/gui/scripts.js';
